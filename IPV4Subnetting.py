@@ -32,7 +32,6 @@ def GetNetworkInfo():
                 'address': INTtoIP(NetworkInt),
                 'cidr': cidr,
                 'NetworkInt': NetworkInt,
-                'mask': mask,
                 'BroadcastInt': NetworkInt + (1 << (32 - cidr)) - 1}
         except ValueError:
             print("Invalid input. Please use format: x.x.x.x/xx")
@@ -86,7 +85,6 @@ def CalcSubnetInfo(users):
     return {
         'size': SubnetSize,
         'cidr': cidr,
-        'mask': mask,
         'maskstr': maskstr,
         'usable': SubnetSize - 2}
 
@@ -115,9 +113,7 @@ def AllocateSubnets(BaseNetwork, segments):
         subnets.append({
             'OgIndex': OgIndex,
             'users': users,
-            'NetworkInt': NetworkInt,
             'network': INTtoIP(NetworkInt),
-            'BroadcastInt': BroadcastInt,
             'broadcast': INTtoIP(BroadcastInt),
             'cidr': SubnetInfo['cidr'],
             'mask': SubnetInfo['maskstr'],
@@ -127,6 +123,7 @@ def AllocateSubnets(BaseNetwork, segments):
             'LastUsable': INTtoIP(LastUsable) if LastUsable else "N/A"})
         currentip += SubnetInfo['size']
     return subnets
+
 def DisplayResults(BaseNetwork, subnets):
     if not subnets:
         return
@@ -140,15 +137,12 @@ def DisplayResults(BaseNetwork, subnets):
     print(f"{'Seg':<4} {'Users':<6} {'Network':<16} {'Mask':<16} "
           f"{'Broadcast':<16} {'Usable Range':<25} {'Size':<8}")
     print("-" * 100)
-    UsedIPsCount = 0
-    UsableCount = 0
+    
     for i, subnet in enumerate(subnets, 1):
         range_str = f"{subnet['FirstUsable']} - {subnet['LastUsable']}" if subnet['usable'] > 0 else "No usable IPs"
         print(f"{i:<4} {subnet['users']:<6} {subnet['network'] + '/' + str(subnet['cidr']):<16} "
               f"{subnet['mask']:<16} {subnet['broadcast']:<16} "
               f"{range_str:<25} /{subnet['cidr']:<6}")
-        UsedIPsCount += subnet['size']
-        UsableCount += subnet['usable']
 
 def Main():
     print("Welcome to the IPv4 Subnetting Calculator!")
@@ -166,5 +160,6 @@ def Main():
             print("\nFailed to allocate subnets. Please try with a larger base network.")
         another = input("\nPerform another calculation? (y/n): ").lower()
         if another != 'y':
+            print("Thank you for using the IPv4 Subnetting Calculator!")
             break
 Main()
